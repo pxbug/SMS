@@ -2,6 +2,7 @@
  * Cloudflare Pages Function - CORS 代理服务
  * 用途：解决前端跨域问题
  * 部署平台：Cloudflare Pages Functions
+ * 优化：添加响应缓存头，减少重复请求
  */
 
 export async function onRequest(context) {
@@ -35,7 +36,7 @@ export async function onRequest(context) {
     };
 
     // 复制请求头（排除 Host 等敏感头）
-    const excludeHeaders = ["host", "origin", "referer"];
+    const excludeHeaders = ["host", "origin", "referer", "cookie"];
     for (const [key, value] of request.headers) {
       const lowerKey = key.toLowerCase();
       if (!excludeHeaders.includes(lowerKey)) {
@@ -48,23 +49,46 @@ export async function onRequest(context) {
       proxyRequestInit.body = await request.text();
     }
 
-    // 发起代理请求
-    const response = await fetch(decodedUrl, proxyRequestInit);
+    // 发起代理请求（添加超时控制）
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
+    
+    try {
+      const response = await fetch(decodedUrl, {
+        ...proxyRequestInit,
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
 
-    // 复制响应头并添加 CORS 头
-    const responseHeaders = new Headers(response.headers);
-    const corsHeaders = getCORSHeaders();
+      // 复制响应头并添加 CORS 头
+      const responseHeaders = new Headers(response.headers);
+      const corsHeaders = getCORSHeaders();
 
-    for (const [key, value] of Object.entries(corsHeaders)) {
-      responseHeaders.set(key, value);
+      for (const [key, value] of Object.entries(corsHeaders)) {
+        responseHeaders.set(key, value);
+      }
+
+      // 添加不缓存策略（确保实时性）
+      responseHeaders.set("Cache-Control", "no-store, no-cache, must-revalidate");
+      responseHeaders.set("Pragma", "no-cache");
+      responseHeaders.set("Expires", "0");
+
+      // 返回代理响应
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: responseHeaders,
+      });
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError.name === 'AbortError') {
+        return new Response("请求超时", {
+          status: 504,
+          headers: getCORSHeaders(),
+        });
+      }
+      throw fetchError;
     }
-
-    // 返回代理响应
-    return new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: responseHeaders,
-    });
   } catch (error) {
     return new Response(`代理请求失败: ${error.message}`, {
       status: 500,

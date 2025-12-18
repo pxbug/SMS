@@ -3368,8 +3368,24 @@ button:hover {
             return url; // 直连
         }
         
-        // 增强的fetch函数（自动重试不同代理）
+        // ⭐ 增强的fetch函数（自动重试不同代理 + 请求去重）
         async function fetchWithProxyRetry(url, options = {}) {
+            // 生成请求缓存键（URL + 方法）
+            const cacheKey = `${options.method || 'GET'}:${url}`;
+            const now = Date.now();
+            
+            // 检查缓存（如果5秒内请求过相同URL，直接返回缓存）
+            if (requestCache.has(cacheKey)) {
+                const cached = requestCache.get(cacheKey);
+                if (now - cached.timestamp < CACHE_DURATION) {
+                    // 返回缓存的响应克隆
+                    return cached.response.clone();
+                } else {
+                    // 缓存过期，删除
+                    requestCache.delete(cacheKey);
+                }
+            }
+            
             let lastError = null;
             
             // 尝试所有代理
@@ -3384,6 +3400,24 @@ button:hover {
                     
                     // 如果成功，返回响应
                     if (response.ok || response.status < 500) {
+                        // 缓存成功的响应（只缓存成功的请求）
+                        if (response.ok) {
+                            requestCache.set(cacheKey, {
+                                response: response.clone(),
+                                timestamp: now
+                            });
+                            
+                            // 定期清理过期缓存（避免内存泄漏）
+                            if (requestCache.size > 500) {
+                                const entriesToDelete = [];
+                                requestCache.forEach((value, key) => {
+                                    if (now - value.timestamp > CACHE_DURATION) {
+                                        entriesToDelete.push(key);
+                                    }
+                                });
+                                entriesToDelete.forEach(key => requestCache.delete(key));
+                            }
+                        }
                         return response;
                     }
                 } catch (error) {
@@ -3407,6 +3441,14 @@ button:hover {
         // 并发控制配置（防止请求堵塞）
         const MAX_CONCURRENT = 30; // 最大并发数（已优化：10→30）⚡
         const REQUEST_DELAY = 10; // 每批请求间隔(ms)（已优化：100ms→10ms）⚡
+        
+        // ⭐ 请求去重缓存（避免短时间内重复请求相同URL）
+        const requestCache = new Map();
+        const CACHE_DURATION = 5000; // 缓存时长5秒
+        
+        // ⭐ 防抖控制（避免用户重复点击）
+        let lastClickTime = 0;
+        const CLICK_DEBOUNCE = 2000; // 2秒防抖
         
         // 延迟函数
         function sleep(ms) {
@@ -3485,6 +3527,14 @@ button:hover {
         });
 
        async function sendRequests() {
+    // ⭐ 防抖检查（避免用户快速重复点击）
+    const now = Date.now();
+    if (now - lastClickTime < CLICK_DEBOUNCE) {
+        addLog(`请勿频繁点击，请等待 ${Math.ceil((CLICK_DEBOUNCE - (now - lastClickTime)) / 1000)} 秒`, 'error');
+        return;
+    }
+    lastClickTime = now;
+    
     const phoneNumber = document.getElementById('phoneNumber').value.trim();
     const times = 1;
 
@@ -3492,6 +3542,9 @@ button:hover {
     addLog('错误：请输入正确的11位中国手机号！', 'error');
     return;
     }
+    
+    // 清空之前的请求缓存（新的发送任务开始时）
+    requestCache.clear();
     
     // 设置运行标志
     isRunning = true;
