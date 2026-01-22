@@ -3,8 +3,6 @@
  * 支持两种调用方式：
  * 1. 路径形式: https://your-domain.com/https://example.com
  * 2. 参数形式: https://your-domain.com/?url=https://example.com
- *
- * 优化：支持通配符路由，处理跨域预检，并兼容静态资源。
  */
 
 export async function onRequest(context) {
@@ -12,8 +10,7 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   const pathname = url.pathname;
 
-  // 1. 静态资源和本站关键路径绕过（交由 Pages 原生处理）
-  // 如果路径是根路径、主页、图标或 logo，则返回 context.next() 以允许 Pages 渲染静态 index.html
+  // 1. 静态资源和本站关键路径绕过（让 Pages 原生处理）
   const isStaticAsset =
     pathname === "/" ||
     pathname === "/index.html" ||
@@ -32,7 +29,6 @@ export async function onRequest(context) {
 
   if (!targetUrl) {
     // 尝试从路径中直接解析目标 URL (例如 /https://example.com)
-    // pathname 通常以 / 开头，去除第一个 /
     const candidate = pathname.startsWith("/") ? pathname.slice(1) : pathname;
 
     // 如果路径以 http 开头，说明它是一个待代理的 URL
@@ -47,9 +43,8 @@ export async function onRequest(context) {
     return handleCORS();
   }
 
-  // 4. 如果仍未找到有效的代理目标，且不是忽略路径，则返回 404 或 context.next()
+  // 4. 如果仍未找到有效的代理目标，且不是忽略路径，则返回 context.next()
   if (!targetUrl) {
-    // 如果不是明显的 URL 代理请求，且也不属于静态资源，尝试交给 Pages 默认处理（可能返回 404 页面）
     return context.next();
   }
 
@@ -99,7 +94,7 @@ export async function onRequest(context) {
         responseHeaders.set(key, value);
       }
 
-      // 禁止响应被强缓存，确保实时性
+      // 禁止响应被强缓存
       responseHeaders.set(
         "Cache-Control",
         "no-store, no-cache, must-revalidate",
