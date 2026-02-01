@@ -6,506 +6,298 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="logo.ico" type="image/x-icon">
     <link rel="shortcut icon" href="logo.ico" type="image/x-icon">
-    <title>云智短信压力测试系统</title>
+    <title>SMS短信压力测试系统</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            background-color: #F5F5F7;
-            text-align: center;
-            overflow-y: auto;
-            padding-top: 60px;
-            width: 100%;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; 
+    min-height: 100vh;
+    margin: 0;
+    background-color: #05080c;
+    text-align: center;
+    overflow-y: auto; 
+    padding-top: 100px;
+    width: 100%;
             height: auto;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+}
 
-        .background-blur {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            opacity: 0.1;
-        }
 
-        .logo-container {
-            text-align: center;
-            margin-bottom: 20px;
-        }
 
-        .logo {
-            width: 120px;
-            height: auto;
-            border-radius: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
+.logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 120px;
+    height: auto;
+}
 
         input[type="text"],
         input[type="number"],
         #generatedUrl {
-            width: 100%;
-            max-width: 325px;
-            padding: 16px 20px;
-            font-size: 17px;
-            color: #1D1D1F;
-            background-color: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            margin-bottom: 16px;
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            border-radius: 16px;
-            box-sizing: border-box;
-            outline: none;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8),
-                        0 2px 8px rgba(0, 0, 0, 0.04);
-        }
+    width: 325px;
+    padding: 10px;
+    font-size: 20px;
+    color: #00ff9d;
+    background-color: #05080c;
+    margin-bottom: 10px;
+    border: 2px solid #00ff9d;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
 
-        input[type="text"]:focus,
-        input[type="number"]:focus,
-        #generatedUrl:focus {
-            border-color: #007AFF;
-            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.2),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.8),
-                        0 4px 16px rgba(0, 122, 255, 0.15);
-        }
+button {
+    padding: 10px 20px;
+    font-size: 18px;
+    color: #00ff9d;
+    background-color: #05080c;
+    border: 2px solid #00ff9d;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+}
 
-        input::placeholder {
-            color: #86868B;
-        }
+button:hover {
+    color: #05080c;
+    background-color: #00ff9d;
+    border: 2px solid #00ff9d;
+}
 
-        button {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', -apple-system, 'Helvetica Neue', sans-serif;
-            padding: 16px 32px;
-            font-size: 17px;
-            font-weight: 600;
-            color: #007AFF;
-            background-color: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: none;
-            border-radius: 14px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            margin-top: 12px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-        }
+/* 开始发送按钮 - 绿色 */
+.btn-start {
+    color: #00ff9d;
+    border-color: #00ff9d;
+    background-color: #05080c;
+}
 
-        button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 32px rgba(0, 122, 255, 0.3),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-        }
+.btn-start:hover {
+    color: #05080c;
+    background-color: #00ff9d;
+}
 
-        button:active {
-            transform: scale(0.98) translateY(0);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-        }
+/* 停止发送按钮 - 红色 */
+.btn-stop {
+    color: #ff4757;
+    border-color: #ff4757;
+    background-color: #05080c;
+    display: none;
+}
 
-        .btn-start {
-            color: #007AFF;
-            background-color: #FFFFFF;
-        }
+.btn-stop:hover {
+    color: #05080c;
+    background-color: #ff4757;
+}
 
-        .btn-start:hover {
-            background-color: #F2F2F7;
-        }
+#instruction {
+    font-size: 14px;
+    color: #555;
+    margin-top: 20px;
+}
 
-        .btn-stop {
-            color: #FF3B30;
-            background-color: #FFFFFF;
-            display: none;
-        }
+.card {
+    background-color: #05080c;
+    border: 1px solid #00ff9d;
+    border-radius: 8px;
+    width: 80%;
+    padding: 20px;
+    box-sizing: border-box;
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    height: auto;
+}
 
-        .btn-stop:hover {
-            background-color: #F2F2F7;
-        }
+.card h3 {
+    font-weight: bold;
+    font-size: 20px;
+    color: #00ff9d;
+}
 
-        #instruction {
-            font-size: 14px;
-            color: #86868B;
-            margin-top: 20px;
-        }
+.card p {
+    font-size: 14px;
+    color: #00ff9d;
+    margin-top: 10px;
+}
 
-        .card {
-            background-color: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border-radius: 20px;
-            width: 90%;
-            max-width: 500px;
-            padding: 24px;
-            box-sizing: border-box;
-            margin-top: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-
-        .card h3 {
-            font-weight: 600;
-            font-size: 20px;
-            color: #1D1D1F;
-            margin-bottom: 12px;
-        }
-
-        .card p {
-            font-size: 15px;
-            color: #515154;
-            line-height: 1.6;
-            margin-top: 8px;
-        }
-
-        .desr h2 {
-            font-size: 32px;
-            font-weight: 700;
-            color: #1D1D1F;
-            background: linear-gradient(135deg, #1D1D1F 0%, #515154 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 8px;
-        }
-
+.desr h2 {
+    font-size: 32px;
+    color: #00ff9d;
+}
         .confirm-btn {
             width: 100%;
             padding: 18px;
-            font-size: 17px;
-            font-weight: 600;
-            color: #007AFF;
-            background-color: #FFFFFF;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(45deg, #FF416C, #FF4B2B);
             border: none;
-            border-radius: 14px;
+            border-radius: 10px;
             cursor: pointer;
             margin-top: 20px;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
         }
-
+        
         .confirm-btn:hover {
-            background-color: #F2F2F7;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 75, 43, 0.4);
         }
-
+        
         .confirm-btn:active {
-            background-color: #E5E5EA;
+            transform: translateY(0);
         }
-
+        
         .stop-btn {
             width: 100%;
             padding: 15px;
-            font-size: 17px;
-            font-weight: 600;
-            color: #FF3B30;
-            background-color: #FFFFFF;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(45deg, #667eea, #764ba2);
             border: none;
-            border-radius: 14px;
+            border-radius: 10px;
             cursor: pointer;
             margin-top: 10px;
             display: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
-
-        .stop-btn:hover {
-            background-color: #F2F2F7;
-        }
-
+        
         .status {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 16px 20px;
-            border-radius: 14px;
-            border-left: 4px solid #34C759;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
             text-align: left;
             margin-top: 20px;
-            color: #1D1D1F;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            color: #333;
         }
-
+        
         .log {
-            width: 90%;
-            max-width: 500px;
+            width: 80%;
             height: 300px;
             overflow-y: auto;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            color: #1D1D1F;
-            padding: 16px 20px;
-            border-radius: 20px;
-            margin: 20px auto 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+            color: #00ff9d;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px auto 0;
             text-align: left;
-            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            font-family: 'Courier New', monospace;
             font-size: 13px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 2px solid #00ff9d;
+            box-shadow: 0 4px 15px rgba(0, 255, 157, 0.2);
             line-height: 1.6;
             box-sizing: border-box;
         }
-
+        
         .log-success {
-            color: #34C759;
-            font-weight: 600;
+            color: #00ff9d;
+            font-weight: bold;
         }
-
+        
         .log-error {
-            color: #FF3B30;
-            font-weight: 600;
+            color: #ff4757;
+            font-weight: bold;
         }
-
+        
         .log-info {
-            color: #FF9500;
+            color: #ffa502;
         }
-
+        
         .log-system {
-            color: #007AFF;
+            color: #5352ed;
         }
-
+        
         .log-time {
-            color: #86868B;
+            color: #747d8c;
             font-size: 11px;
         }
-
+        
+        /* 美化滚动条 */
         .log::-webkit-scrollbar {
             width: 8px;
         }
-
+        
         .log::-webkit-scrollbar-track {
-            background: transparent;
+            background: #0f0f1e;
             border-radius: 10px;
         }
-
+        
         .log::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.2);
+            background: #00ff9d;
             border-radius: 10px;
         }
-
+        
         .log::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 0, 0, 0.3);
+            background: #00d488;
         }
-
+        
+        /* 移除闪烁动画，保持稳定显示 */
+        
         .hint {
-            color: #86868B;
-            font-size: 13px;
-            margin-top: 16px;
-            font-weight: 400;
+            color: #666;
+            font-size: 12px;
+            margin-top: 15px;
         }
-
-
-        .ios-fab {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ios-fab::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.4s ease, height 0.4s ease;
-        }
-
-        .ios-fab:active::after {
-            width: 200px;
-            height: 200px;
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding-top: 40px;
-            }
-
-            .logo {
-                width: 100px;
-            }
-
-            .desr h2 {
-                font-size: 26px;
-            }
-
-            input[type="text"],
-            input[type="number"],
-            #generatedUrl {
-                width: 90%;
-            }
-
-            button {
-                width: 90%;
-            }
-
-            .card {
-                width: 90%;
-                padding: 20px;
-            }
-
-            .log {
-                width: 90%;
-                height: 250px;
-            }
-        }
-
-        .icon {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            vertical-align: middle;
-            margin-right: 8px;
-        }
-
-        .icon-btn {
-            width: 24px;
-            height: 24px;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-
-        .icon-sm {
-            width: 16px;
-            height: 16px;
-            vertical-align: middle;
-            margin-right: 6px;
-        }
-
-        .icon-lg {
-            width: 28px;
-            height: 28px;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-
-        .icon-send { fill: #007AFF; }
-        .icon-stop { fill: #FF3B30; }
-        .icon-system { fill: #007AFF; }
-        .icon-info { fill: #FF9500; }
-        .icon-success { fill: #34C759; }
-        .icon-error { fill: #FF3B30; }
-        .icon-warning { fill: #FF9500; }
-        .icon-time { fill: #8E8E93; }
-        .icon-chart { fill: #007AFF; }
     </style>
 </head>
 
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-  <symbol id="icon-send" viewBox="0 0 24 24">
-    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-  </symbol>
-  <symbol id="icon-stop" viewBox="0 0 24 24">
-    <path d="M6 6h12v12H6z"/>
-  </symbol>
-  <symbol id="icon-system" viewBox="0 0 24 24">
-    <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
-  </symbol>
-  <symbol id="icon-info" viewBox="0 0 24 24">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-  </symbol>
-  <symbol id="icon-success" viewBox="0 0 24 24">
-    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-  </symbol>
-  <symbol id="icon-error" viewBox="0 0 24 24">
-    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-  </symbol>
-  <symbol id="icon-warning" viewBox="0 0 24 24">
-    <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
-  </symbol>
-  <symbol id="icon-time" viewBox="0 0 24 24">
-    <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
-  </symbol>
-  <symbol id="icon-chart" viewBox="0 0 24 24">
-    <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/>
-  </symbol>
-</svg>
-
 <body>
-    <div class="background-blur"></div>
-    
         <img src="logo.gif" alt="Logo" class="logo">
     <div class="container">
     </div>
     <div class="desr">
-    <h2>云智 bot 攻击系统</h2><br />
+    <h2>Safety box攻击系统</h2><br />
     </div>
-    </div>
+</div>
     <form id="postForm">
+        <label for="phoneNumber"></label>
         <input type="text" id="phoneNumber" name="phoneNumber" placeholder="请输入手机号" required><br><br>
 
-        <button type="button" id="sendBtn" class="btn-start ios-fab" onclick="sendRequests()">
-            <svg class="icon icon-btn icon-send"><use href="#icon-send"/></svg>开始发送
-        </button>
-        <button type="button" id="stopBtn" class="btn-stop ios-fab" onclick="stopRequests()">
-            <svg class="icon icon-btn icon-stop"><use href="#icon-stop"/></svg>停止发送
-        </button>
+        <button type="button" id="sendBtn" class="btn-start" onclick="sendRequests()">📣 开始发送</button>
+        <button type="button" id="stopBtn" class="btn-stop" onclick="stopRequests()">⏹️ 停止发送</button>
     </form>
     
-        <div class="log" id="smsLogArea">
-            <svg class="icon icon-system"><use href="#icon-system"/></svg><span class="log-system">系统就绪</span><br>
-            <svg class="icon icon-info"><use href="#icon-info"/></svg><span class="log-info">请输入手机号并点击发送</span>
+    <div class="log" id="smsLogArea">
+        <span class="log-system">⚙️ 系统就绪</span><br>
+        <span class="log-info">📌 请输入手机号并点击发送</span>
     </div>
-
-    <div class="card">
+  
+<div class="card">
         <h3>使用方法</h3>
-        <p>填写手机号，点击"开始发送"按钮即可发起攻击<br /><br />本程序仅用于短信测压和学习交流，请勿用于非法用途，使用本程序造成的一切后果由使用者自行承担<br /><br />你可以加入官方交流群<br />
+        <p>填写手机号，点击“开始发送”按钮即可发起攻击<br /><br />本程序仅用于短信测压和学习交流，请勿用于非法用途，使用本程序造成的一切后果由使用者自行承担<br /><br />你可以选择进入官方频道下载付费软件<br />
             <!DOCTYPE html>
 <html>
 
 <head>
   <style>
     .zoom-btn {
-      padding: 12px 64px;
-      background-color: #FFFFFF;
-      color: #007AFF;
-      border: none;
-      border-radius: 14px;
-      font-size: 17px;
-      font-weight: 600;
+      padding: 8px 64px;
+      background: #05080c;
+      color: #00ff9d;
+      border: 2px solid #00ff9d;
+      border-radius: 8px;
+      font-size: 18px;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      margin-top: 16px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    .zoom-btn:hover {
-      background-color: #F2F2F7;
-    }
-
-    .zoom-btn:active {
-      background-color: #E5E5EA;
+      transition: transform 0.2s ease;
     }
   </style>
 </head>
 
 <body>
-  <button class="zoom-btn" onclick="handleClick()">加入官方交流群</button>
+  <button class="zoom-btn" onclick="handleClick()">加入官方频道</button>
 
   <script>
     function handleClick() {
       const btn = document.querySelector('.zoom-btn');
-      btn.style.transform = 'scale(0.95)';
+      btn.style.transform = 'scale(0.85)';
       
       setTimeout(() => {
         btn.style.transform = 'scale(1)';
-                            window.location.href = 'https://t.me/iTroll886';
+                            window.location.href = 'https://mp.weixin.qq.com/s/4qIBy5UUtAkEvNwHAej13Q';
       }, 100);
     }
   </script>
@@ -514,7 +306,7 @@
             </html>
         </p>
     </div>
-    </div>
+</div>
 <script>
 
   var vConsole = null;
@@ -3581,8 +3373,7 @@
         ];
         
         // CORS代理配置（彻底解决版）
-        //const USE_CORS_PROXY = true; // 设置为true启用CORS代理
-        const USE_CORS_PROXY = false;
+        const USE_CORS_PROXY = false; // 设置为true启用CORS代理
         
         // 多个代理备选列表（自动切换）
         // ⭐ 优先使用当前站点的本地代理，其次是自定义域名代理
@@ -3729,26 +3520,24 @@
             const timestamp = new Date().toLocaleTimeString();
             const typeClass = `log-${type}`;
             
-            // 根据类型添加不同SVG图标
-            let iconClass = 'icon-info';
-            let iconSvg = '';
+            // 根据类型添加不同图标
+            let icon = '';
             switch(type) {
                 case 'success':
-                    iconClass = 'icon-success';
+                    icon = '✅';
                     break;
                 case 'error':
-                    iconClass = 'icon-error';
+                    icon = '❌';
                     break;
                 case 'info':
-                    iconClass = 'icon-info';
+                    icon = '📌';
                     break;
                 case 'system':
-                    iconClass = 'icon-system';
+                    icon = '⚙️';
                     break;
             }
-            iconSvg = `<svg class="icon icon-sm ${iconClass}"><use href="#${iconClass.replace('icon-', 'icon-')}"/></svg>`;
             
-            logArea.innerHTML += `<span class="log-time">[${timestamp}]</span> <span class="${typeClass}">${iconSvg} ${message}</span><br>`;
+            logArea.innerHTML += `<span class="log-time">[${timestamp}]</span> <span class="${typeClass}">${icon} ${message}</span><br>`;
             logArea.scrollTop = logArea.scrollHeight;
             
             const lines = logArea.innerHTML.split('<br>');
@@ -3762,7 +3551,7 @@
             isRunning = false;
             document.getElementById('sendBtn').style.display = 'inline-block';
             document.getElementById('stopBtn').style.display = 'none';
-            addLog('已停止发送', 'error');
+            addLog('⏹️ 已停止发送', 'error');
             console.log('⏹️ 用户主动停止');
         }
         
@@ -3935,7 +3724,7 @@
                         globalSuccessCount++;
                         consecutiveFailures = 0;
                         console.log(`✅ [${status}] ${apiRequest.method || 'POST'} 成功 (${duration}ms): ${actualUrl}`);
-                        addLog(`成功 #${globalSuccessCount} (${duration}ms)`, 'success');
+                        addLog(`✅ 成功 #${globalSuccessCount} (${duration}ms)`, 'success');
                     } else {
                         failureCount++;
                         globalFailureCount++;
@@ -3944,14 +3733,14 @@
                         
                         // 显示部分失败日志（前5个 + 每20个显示一次）
                         if (globalFailureCount <= 5 || globalFailureCount % 20 === 0) {
-                            addLog(`${failReason} (${duration}ms)`, 'error');
+                            addLog(`❌ ${failReason} (${duration}ms)`, 'error');
                         }
                         
                         // ⭐ 连续失败过多，自动停止
                         if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES && isRunning) {
                             isRunning = false;
-                            addLog(`连续失败${consecutiveFailures}次，已自动停止`, 'error');
-                            addLog(`可能是代理额度超限，请明天再试`, 'info');
+                            addLog(`⚠️ 连续失败${consecutiveFailures}次，已自动停止`, 'error');
+                            addLog(`💡 可能是代理额度超限，请明天再试`, 'info');
                             console.error(`🛑 连续失败${consecutiveFailures}次，自动停止发送`);
                         }
                     }
@@ -3959,7 +3748,7 @@
                     // 每10个成功请求显示一次进度
                     if (successCount > 0 && successCount % 10 === 0) {
                         console.log(`📊 进度: ${completedRequests}/${totalRequests} | 成功: ${successCount} | 失败: ${failureCount}`);
-                        addLog(`已成功: ${successCount} 个`, 'success');
+                        addLog(`✅ 已成功: ${successCount} 个`, 'success');
                     }
                     
                 } catch (error) {
@@ -4019,9 +3808,9 @@
     // 添加最终统计日志（显示完整统计）
     addLog('─'.repeat(30), 'system');
     if (wasRunning) {
-        addLog(`发送完成！`, 'system');
+        addLog(`📊 发送完成！`, 'system');
     } else {
-        addLog(`已停止发送`, 'system');
+        addLog(`⏹️ 已停止发送`, 'system');
     }
     
     // 计算成功率
@@ -4029,16 +3818,16 @@
     
     // 显示完整统计
     if (successCount > 0) {
-        addLog(`成功: ${successCount} 个 (${successRate}%)`, 'success');
+        addLog(`✅ 成功: ${successCount} 个 (${successRate}%)`, 'success');
     }
     if (failureCount > 0) {
-        addLog(`失败: ${failureCount} 个`, 'error');
+        addLog(`❌ 失败: ${failureCount} 个`, 'error');
     }
-    addLog(`耗时: ${totalTime}秒`, 'info');
+    addLog(`⏱️ 耗时: ${totalTime}秒`, 'info');
     
     // 如果大量失败，提示代理问题
     if (failureCount > successCount * 2) {
-        addLog(`大量请求失败，请检查代理配置`, 'error');
+        addLog(`⚠️ 大量请求失败，请检查代理配置`, 'error');
     }
     addLog('─'.repeat(30), 'system');
 }
