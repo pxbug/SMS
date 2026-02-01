@@ -3,7 +3,7 @@ import sys
 
 client = Anthropic(
     base_url="http://127.0.0.1:8045",
-    api_key="8Q2q-w8vOytoWLsGx5DJ_ImtDyAKh9IYPeFWUvSV"
+    api_key="sk-c07bc713be304fc1a2f0ad79a25efc8d"
 )
 
 # 保存对话历史
